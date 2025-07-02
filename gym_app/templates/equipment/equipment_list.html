@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+    .equipment-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .equipment-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .equipment-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .equipment-card h2 {
+        font-size: 1.8rem;
+        color: #1a73e8;
+        margin: 0 0 0.5rem;
+    }
+
+    .equipment-card p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .equipment-card .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .equipment-card .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        border: none;
+        cursor: pointer;
+    }
+
+    .equipment-card .btn-edit {
+        background: #1a73e8;
+    }
+
+    .equipment-card .btn-edit:hover {
+        background: #1557b0;
+    }
+
+    .equipment-card .btn-delete {
+        background: #d32f2f;
+    }
+
+    .equipment-card .btn-delete:hover {
+        background: #b71c1c;
+    }
+
+    .equipment-card .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+
+    .add-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .add-btn:hover {
+        background: #1557b0;
+    }
+
+    .no-equipment {
+        text-align: center;
+        color: #777;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 600px) {
+        .equipment-container h1 {
+            font-size: 2rem;
+        }
+
+        .equipment-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .equipment-card {
+            padding: 1rem;
+        }
+
+        .equipment-card .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .equipment-card .btn,
+        .equipment-card .btn-delete {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete(equipmentName) {
+        return confirm(`Ви впевнені, що хочете видалити обладнання "${equipmentName}"?`);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="equipment-container">
+    <h1>Список обладнання</h1>
+    {% if user.user_role == 'admin' %}
+        <a href="{% url 'add_equipment' %}" class="add-btn">Додати обладнання</a>
+    {% endif %}
+    {% if equipment %}
+        <div class="equipment-grid">
+            {% for item in equipment %}
+                <div class="equipment-card">
+                    <h2>{{ item.equipment_name }}</h2>
+                    <p><strong>Опис:</strong> {{ item.description|truncatewords:20 }}</p>
+                    {% if user.user_role == 'admin' %}
+                        <div class="actions">
+                            <a href="{% url 'edit_equipment' item.equipment_id %}" class="btn btn-edit">Змінити</a>
+                            <form method="post" action="{% url 'delete_equipment' item.equipment_id %}" class="delete-form" onsubmit="return confirmDelete('{{ item.equipment_name|escapejs }}')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-delete">Видалити</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-equipment">Обладнання відсутнє.</p>
+    {% endif %}
+</div>
+{% endblock %}

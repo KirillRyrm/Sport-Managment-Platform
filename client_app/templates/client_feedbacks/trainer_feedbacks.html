@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Відгуки тренера
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .table th, .table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .table th {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+    }
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .message.error {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .no-feedbacks {
+        text-align: center;
+        color: #777;
+        margin-top: 20px;
+    }
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .back-btn:hover {
+        background-color: #2980b9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Відгуки для {{ trainer.first_name }} {{ trainer.last_name }}</h1>
+<a href="{% url 'home' %}" class="back-btn">Повернутися на головну</a>
+{#{% if messages %}#}
+{#    <div class="messages">#}
+{#        {% for message in messages %}#}
+{#            <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{#{% endif %}#}
+{% if feedbacks %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Назва</th>
+                <th>Опис</th>
+                <th>Рейтинг</th>
+                <th>Дата</th>
+                <th>Клієнт</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+                <tr>
+                    <td>{{ feedback.title }}</td>
+                    <td>{{ feedback.description }}</td>
+                    <td>{{ feedback.rating }}</td>
+                    <td>{{ feedback.date|date:"d.m.Y H:i" }}</td>
+                    <td>{{ feedback.user.first_name }} {{ feedback.user.last_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="no-feedbacks">Відгуків поки немає.</p>
+{% endif %}
+{% endblock %}

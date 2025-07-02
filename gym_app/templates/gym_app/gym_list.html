@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+    .gyms-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .gyms-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .gyms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .gym-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .gym-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .gym-card h2 {
+        font-size: 1.8rem;
+        color: #1a73e8;
+        margin: 0 0 0.5rem;
+    }
+
+    .gym-card p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .gym-card .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .gym-card .contact-info i {
+        color: #1a73e8;
+        margin-right: 0.5rem;
+    }
+
+    .gym-card .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .gym-card .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .gym-card .btn-edit {
+        background: #1a73e8;
+    }
+
+    .gym-card .btn-edit:hover {
+        background: #1557b0;
+    }
+
+    .gym-card .btn-delete {
+        background: #d32f2f;
+    }
+
+    .gym-card .btn-delete:hover {
+        background: #b71c1c;
+    }
+
+    .gym-card .btn-view {
+        background: #28a745;
+    }
+
+    .gym-card .btn-view:hover {
+        background: #218838;
+    }
+
+    .add-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .add-btn:hover {
+        background: #1557b0;
+    }
+
+    .no-gyms {
+        text-align: center;
+        color: #777;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 600px) {
+        .gyms-container h1 {
+            font-size: 2rem;
+        }
+
+        .gym-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .gym-card {
+            padding: 1rem;
+        }
+
+        .gym-card .actions {
+            flex-direction: column;
+        }
+
+        .gym-card .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete(gymName) {
+        return confirm(`Ви впевнені, що хочете видалити зал "${gymName}"?`);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="gyms-container">
+    <h1>Список спортивних залів</h1>
+    {% if user.user_role == 'admin' %}
+        <a href="{% url 'add_gym' %}" class="add-btn">Додати зал</a>
+    {% endif %}
+    {% if gyms %}
+        <div class="gyms-grid">
+            {% for gym in gyms %}
+                <div class="gym-card">
+                    <h2>{{ gym.gym_name }}</h2>
+                    <p><strong>Адреса:</strong> {{ gym.address }}</p>
+                    {% if gym.description %}
+                        <p><strong>Опис:</strong> {{ gym.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> {{ gym.phone }}</p>
+                        <p><i class="fas fa-envelope"></i> {{ gym.email }}</p>
+                    </div>
+
+                    <div class="actions">
+                        <a href="{% url 'location_list' gym.gym_id %}" class="btn btn-view">Перегляд локацій</a>
+                        {% if user.user_role == 'admin' %}
+                        <a href="{% url 'edit_gym' gym.gym_id %}" class="btn btn-edit">Змінити інформацію</a>
+                        <form method="post" action="{% url 'delete_gym' gym.gym_id %}" onsubmit="return confirmDelete('{{ gym.gym_name|escapejs }}')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-delete">Видалити</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-gyms">Спортивних залів немає.</p>
+    {% endif %}
+</div>
+{% endblock %}

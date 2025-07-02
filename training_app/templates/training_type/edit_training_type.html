@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Редагувати тип тренування
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-group .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .cancel-btn {
+            background-color: #7f8c8d;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        .cancel-btn:hover {
+            background-color: #95a5a6;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Редагувати тип тренування: {{ training_type.title }}</h1>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Назва</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="error">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Опис</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="button-group">
+            <button type="submit">Зберегти</button>
+            <a href="{% url 'training_type_list' %}" class="cancel-btn">Назад</a>
+        </div>
+    </form>
+{% endblock %}

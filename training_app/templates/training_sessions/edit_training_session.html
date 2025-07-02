@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Редагувати тренувальну сесію
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group button, .button-group a {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        .button-group .cancel-btn {
+            background-color: #e74c3c;
+            color: white;
+            margin-left: 10px;
+        }
+        .button-group .cancel-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gymSelect = document.getElementById('id_gym');
+            const locationSelect = document.getElementById('id_location');
+            const gymLocations = {{ gym_locations|safe }};
+
+            gymSelect.addEventListener('change', function() {
+                const gymId = this.value;
+                locationSelect.innerHTML = '<option value="">Виберіть локацію</option>';
+
+                if (gymId && gymLocations[gymId]) {
+                    gymLocations[gymId].forEach(location => {
+                        const option = document.createElement('option');
+                        option.value = location.location_id;
+                        option.text = location.location_name;
+                        locationSelect.appendChild(option);
+                    });
+                }
+            });
+
+            // Викликати подію change при завантаженні, щоб оновити локації для вибраного залу
+            if (gymSelect.value) {
+                gymSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>Редагувати тренувальну сесію</h1>
+{#    {% if messages %}#}
+{#        <div class="messages">#}
+{#            {% for message in messages %}#}
+{#                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    {% endif %}#}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.session_date.id_for_label }}">Дата сесії</label>
+            {{ form.session_date }}
+            {% if form.session_date.errors %}
+                <div class="error">{{ form.session_date.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.start_time.id_for_label }}">Час початку</label>
+            {{ form.start_time }}
+            {% if form.start_time.errors %}
+                <div class="error">{{ form.start_time.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.end_time.id_for_label }}">Час закінчення</label>
+            {{ form.end_time }}
+            {% if form.end_time.errors %}
+                <div class="error">{{ form.end_time.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.max_participants.id_for_label }}">Максимальна кількість учасників</label>
+            {{ form.max_participants }}
+            {% if form.max_participants.errors %}
+                <div class="error">{{ form.max_participants.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.training_type.id_for_label }}">Тип тренування</label>
+            {{ form.training_type }}
+            {% if form.training_type.errors %}
+                <div class="error">{{ form.training_type.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.gym.id_for_label }}">Зал</label>
+            {{ form.gym }}
+            {% if form.gym.errors %}
+                <div class="error">{{ form.gym.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.location.id_for_label }}">Локація</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+                <div class="error">{{ form.location.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.status.id_for_label }}">Статус</label>
+            {{ form.status }}
+            {% if form.status.errors %}
+                <div class="error">{{ form.status.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="button-group">
+            <button type="submit">Зберегти</button>
+            <a href="{% url 'training_sessions' %}" class="cancel-btn">Назад</a>
+        </div>
+    </form>
+{% endblock %}

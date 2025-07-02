@@ -1,0 +1,20 @@
+# Локальна база даних SQLite
+auth_service/db.sqlite3
+db.sqlite3
+
+# Python-файли
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Django-файли
+*.log
+migrations/
+
+# Секрети
+*.env
+
+# Статичні та медіа файли
+staticfiles/
+media/

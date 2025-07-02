@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+    .goal-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .goal-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .goal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .goal-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .goal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .goal-card h2 {
+        font-size: 1.8rem;
+        color: #1a73e8;
+        margin: 0 0 0.5rem;
+    }
+
+    .goal-card p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .goal-card .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .goal-card .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .goal-card .btn-edit {
+        background: #1a73e8;
+    }
+
+    .goal-card .btn-edit:hover {
+        background: #1557b0;
+    }
+
+    .goal-card .btn-delete {
+        background: #d32f2f;
+    }
+
+    .goal-card .btn-delete:hover {
+        background: #b71c1c;
+    }
+
+    .goal-card .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .add-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .add-btn:hover {
+        background: #1557b0;
+    }
+
+    .no-goals {
+        text-align: center;
+        color: #777;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 600px) {
+        .goal-container h1 {
+            font-size: 2rem;
+        }
+
+        .goal-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .goal-card {
+            padding: 1rem;
+        }
+
+        .goal-card .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .goal-card .btn,
+        .goal-card .btn-delete {
+            width: 100%;
+        }
+
+        .goal-card .delete-form {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete(goalName) {
+        return confirm(`Ви впевнені, що хочете видалити ціль "${goalName}"?`);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="goal-container">
+    <h1>Цілі</h1>
+    {% if user.user_role == 'admin' or user.user_role == 'trainer' %}
+        <a href="{% url 'add_goal' %}" class="add-btn">Додати ціль</a>
+    {% endif %}
+    {% if goals %}
+        <div class="goal-grid">
+            {% for goal in goals %}
+                <div class="goal-card">
+                    <h2>{{ goal.goal_name }}</h2>
+                    <p><strong>Опис:</strong> {{ goal.description }}</p>
+                    {% if user.user_role == 'admin' or user.user_role == 'trainer' %}
+                        <div class="actions">
+                            <a href="{% url 'edit_goal' goal.goal_id %}" class="btn btn-edit">Змінити</a>
+                            <form method="post" action="{% url 'delete_goal' goal.goal_id %}" class="delete-form" onsubmit="return confirmDelete('{{ goal.goal_name|escapejs }}')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-delete">Видалити</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-goals">Цілі відсутні.</p>
+    {% endif %}
+</div>
+{% endblock %}

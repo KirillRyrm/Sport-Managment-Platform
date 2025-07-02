@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Список абонементів
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subscriptions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .subscriptions-table th, .subscriptions-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .subscriptions-table th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: bold;
+    }
+    .subscriptions-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .purchase-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .purchase-btn:hover {
+        background-color: #2980b9;
+    }
+    .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .delete-btn:hover {
+        background-color: #c0392b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Список абонементів</h1>
+    {% if user_role == 'client' and not subscriptions %}
+        <a href="{% url 'purchase_subscription' %}" class="purchase-btn">Купити абонемент</a>
+    {% endif %}
+    {% if subscriptions %}
+        <table class="subscriptions-table">
+            <thead>
+                <tr>
+                    {% if user_role != 'client' %}
+                        <th>Клієнт</th>
+                    {% endif %}
+                    <th>Абонемент</th>
+                    <th>Дата початку</th>
+                    <th>Дата закінчення</th>
+                    {% if user_role == 'admin' %}
+                        <th>Тренер</th>
+                        <th>Дії</th>
+                    {% endif %}
+                    {% if user_role == 'client' %}
+                        <th>Дії</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for subscription in subscriptions %}
+                    <tr>
+                        {% if user_role != 'client' %}
+                            <td>{{ subscription.user.first_name }} {{ subscription.user.last_name }}</td>
+                        {% endif %}
+                        <td>{{ subscription.subscription.subscription_name }}</td>
+                        <td>{{ subscription.start_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ subscription.end_date|date:"Y-m-d H:i" }}</td>
+                        {% if user_role == 'admin' %}
+                            <td>
+                                {% if subscription.user.trainer %}
+                                    {{ subscription.user.trainer.first_name }} {{ subscription.user.trainer.last_name }}
+                                {% else %}
+                                    Не призначено
+                                {% endif %}
+                        {% endif %}
+                            </td>
+                        {% if user_role == 'client' %}
+                            <td>
+                                <form method="post" action="{% url 'delete_client_subscription' subscription.user_subscription_id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-btn">Видалити</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="error-message">Абонементів не знайдено.</p>
+    {% endif %}
+</div>
+{% endblock %}

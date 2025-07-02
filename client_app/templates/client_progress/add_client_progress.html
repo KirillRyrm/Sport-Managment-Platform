@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Додати відгук про прогрес
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-submit {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+        .session-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .session-info p {
+            margin: 5px 0;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message.success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .message.error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Додати відгук про прогрес для {{ client.first_name }} {{ client.last_name }}</h1>
+{#    {% if messages %}#}
+{#        <div class="messages">#}
+{#            {% for message in messages %}#}
+{#                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    {% endif %}#}
+    <div class="session-info">
+        <p><strong>Дата:</strong> {{ session.session_date|date:"d.m.Y" }}</p>
+        <p><strong>Час:</strong> {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</p>
+        <p><strong>Тип тренування:</strong> {{ session.training_type.title|default:"Немає" }}</p>
+        <p><strong>Локація:</strong> {{ session.location.location_name }} ({{ session.location.gym.gym_name }})</p>
+    </div>
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.result.label_tag }}
+                {{ form.result }}
+                {% if form.result.errors %}
+                    <p class="message error">{{ form.result.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.feedback.label_tag }}
+                {{ form.feedback }}
+                {% if form.feedback.errors %}
+                    <p class="message error">{{ form.feedback.errors }}</p>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-submit">Зберегти</button>
+            <a href="{% url 'view_session_registrations' session_id=session.session_id %}" class="btn btn-cancel">Скасувати</a>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Рейтинг типів тренувань
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #2980b9;
+        }
+        .no-data {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message.success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .message.error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Рейтинг типів тренувань</h1>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <a href="{% url 'analytics' %}" class="back-btn">Повернутися до аналітики</a>
+    <div class="form-container">
+        <form method="get">
+            <div class="form-group">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date }}
+            </div>
+            <div class="form-group">
+                {{ form.end_date.label_tag }}
+                {{ form.end_date }}
+            </div>
+            <button type="submit" class="back-btn">Фільтрувати</button>
+        </form>
+    </div>
+    {% if ranking_records %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ранг</th>
+                    <th>Тип тренування</th>
+                    <th>Опис</th>
+                    <th>Кількість тренувань</th>
+                    <th>Кількість відвідувачів</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in ranking_records %}
+                    <tr>
+                        <td>{{ record.rank }}</td>
+                        <td>{{ record.training_type }}</td>
+                        <td>{{ record.description|default:"Немає опису" }}</td>
+                        <td>{{ record.training_count }}</td>
+                        <td>{{ record.visitor_count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-data">Немає даних за обраними фільтрами.</p>
+    {% endif %}
+{% endblock %}

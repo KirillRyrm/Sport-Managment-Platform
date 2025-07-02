@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+    .subscription-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .subscription-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .subscription-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .subscription-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .subscription-card h2 {
+        font-size: 1.8rem;
+        color: #1a73e8;
+        margin: 0 0 0.5rem;
+    }
+
+    .subscription-card p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .subscription-card .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .subscription-card .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .subscription-card .btn-edit {
+        background: #1a73e8;
+    }
+
+    .subscription-card .btn-edit:hover {
+        background: #1557b0;
+    }
+
+    .subscription-card .btn-delete {
+        background: #d32f2f;
+    }
+
+    .subscription-card .btn-delete:hover {
+        background: #b71c1c;
+    }
+
+    .subscription-card .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .add-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .add-btn:hover {
+        background: #1557b0;
+    }
+
+    .no-subscriptions {
+        text-align: center;
+        color: #777;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 600px) {
+        .subscription-container h1 {
+            font-size: 2rem;
+        }
+
+        .subscription-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .subscription-card {
+            padding: 1rem;
+        }
+
+        .subscription-card .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .subscription-card .btn,
+        .subscription-card .btn-delete {
+            width: 100%;
+        }
+
+        .subscription-card .delete-form {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete(subscriptionName) {
+        return confirm(`Ви впевнені, що хочете видалити підписку "${subscriptionName}"?`);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-container">
+    <h1>Абонементи</h1>
+    {% if user.user_role == 'admin' %}
+        <a href="{% url 'add_subscription' %}" class="add-btn">Додати новий абонемент</a>
+    {% endif %}
+    {% if subscriptions %}
+        <div class="subscription-grid">
+            {% for subscription in subscriptions %}
+                <div class="subscription-card">
+                    <h2>{{ subscription.subscription_name }}</h2>
+                    <p><strong>Ціна:</strong> {{ subscription.price }} грн</p>
+                    <p><strong>Тривалість:</strong> {{ subscription.duration_days }} днів</p>
+                    <p><strong>Опис:</strong> {{ subscription.description }}</p>
+                    {% if user.user_role == 'admin' %}
+                        <div class="actions">
+                            <a href="{% url 'edit_subscription' subscription.subscription_id %}" class="btn btn-edit">Змінити</a>
+                            <form method="post" action="{% url 'delete_subscription' subscription.subscription_id %}" class="delete-form" onsubmit="return confirmDelete('{{ subscription.subscription_name|escapejs }}')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-delete">Видалити</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-subscriptions">Підписки відсутні.</p>
+    {% endif %}
+</div>
+{% endblock %}

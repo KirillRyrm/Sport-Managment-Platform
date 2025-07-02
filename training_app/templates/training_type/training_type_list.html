@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Типи тренувань
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .action-btn {
+            padding: 8px 12px;
+            margin-right: 5px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        .add-btn {
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Типи тренувань</h1>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <a href="{% url 'add_training_type' %}" class="add-btn">Додати тип тренування</a>
+    {% if training_types %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for training_type in training_types %}
+                    <tr>
+                        <td>{{ training_type.title }}</td>
+                        <td>{{ training_type.description|truncatewords:20 }}</td>
+                        <td>
+                            <a href="{% url 'edit_training_type' training_type.training_type_id %}" class="action-btn edit-btn">Редагувати</a>
+                            <form action="{% url 'delete_training_type' training_type.training_type_id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити {{ training_type.title }}?')">Видалити</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Типів тренувань поки немає.</p>
+    {% endif %}
+{% endblock %}

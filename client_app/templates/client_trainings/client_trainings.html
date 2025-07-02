@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Тренувальні сесії
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .table th, .table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .table th {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+    }
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .action-btn {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        color: white;
+    }
+    .register-btn {
+        background-color: #3498db;
+    }
+    .register-btn:hover {
+        background-color: #2980b9;
+    }
+    .cancel-btn {
+        background-color: #e74c3c;
+    }
+    .cancel-btn:hover {
+        background-color: #c0392b;
+    }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .message.success {
+        background-color: #dff0d8;
+        color: #3c763d;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .message.error {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .no-sessions {
+        text-align: center;
+        color: #777;
+        margin-top: 20px;
+    }
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .back-btn:hover {
+        background-color: #2980b9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Тренувальні сесії</h1>
+<a href="{% url 'home' %}" class="back-btn">Повернутися на головну</a>
+{#{% if messages %}#}
+{#    <div class="messages">#}
+{#        {% for message in messages %}#}
+{#            <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{#{% endif %}#}
+{% if client.trainer %}
+    {% if sessions %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Час початку</th>
+                    <th>Час закінчення</th>
+                    <th>Тип тренування</th>
+                    <th>Локація</th>
+                    <th>Макс. учасників</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                    <tr>
+                        <td>{{ session.session_date|date:"d.m.Y" }}</td>
+                        <td>{{ session.start_time|time:"H:i" }}</td>
+                        <td>{{ session.end_time|time:"H:i" }}</td>
+                        <td>{{ session.training_type.title|default:"—" }}</td>
+                        <td>{{ session.location.location_name }} | {{ session.location.gym.gym_name }}</td>
+                        <td>{{ session.max_participants }}</td>
+                        <td>
+                            {% if session.is_finished %}
+                                <span style="color: gray; font-style: italic;">Тренування завершено</span>
+                            {% else %}
+                                    {% if session.is_registered %}
+                                        <form action="{% url 'cancel_registration' session.session_id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="action-btn cancel-btn" onclick="return confirm('Ви впевнені, що хочете скасувати реєстрацію на цю сесію?')">Відмінити реєстрацію</button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{% url 'register_for_session' session.session_id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="action-btn register-btn" onclick="return confirm('Ви впевнені, що хочете зареєструватися на цю сесію?')">Зареєструватися</button>
+                                        </form>
+                                    {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-sessions">Запланованих сесій немає.</p>
+    {% endif %}
+{% else %}
+    <p class="no-sessions">У вас немає призначеного тренера.</p>
+{% endif %}
+{% endblock %}

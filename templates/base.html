@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мережа спортивних комплексів{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Хедер -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">Мережа спортивних комплексів</a>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="/">Головна</a></li>
+                    {% if user.is_authenticated %}
+                        {% if user.user_role == 'client' %}
+                            <li><a href="{% url 'client_profile' %}">Особистий профіль</a></li>
+                            <li><a href="{% url 'client_subscriptions_list' %}">Мої абонементи</a></li>
+{#                            <li><a href="gym_list/">Спортивні зали</a></li>#}
+                        {% elif user.user_role == 'trainer' %}
+                            <li><a href="{% url 'trainer_profile' %}">Особистий профіль</a></li>
+                            <li><a href="{% url 'gym_list' %}">Спортивні зали</a></li>
+{#                        {% elif user.user_role == 'admin' %}#}
+{#                            <li><a href="gym_list/">Налаштування спорт залів</a></li>#}
+{#                            <li><a href="/schedule/sessions/">Налаштування тренувальних сесій</a></li>#}
+{#                            <li><a href="/admin/">Адмін панель</a></li>#}
+                        {% endif %}
+                        <li class="user-menu">
+                            <span>{{ user.username }} ({{ user.user_role|capfirst }})</span>
+                            <a href="/logout/" class="logout-btn">Вихід</a>
+                        </li>
+                    {% else %}
+                        <li><a href="/login/">Авторизація</a></li>
+                        <li><a href="/register/">Регістрація</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Основний контент -->
+    <main class="main">
+        <div class="container">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Про нас</h3>
+                    <p>Ми пропонуємо першокласні спортивні комплекси та тренувальні програми для всіх.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Швидкі посилання</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Головна</a></li>
+                        <li><a href="{% url 'gym_list' %}">Зали</a></li>
+                        <li><a href="{% url 'subscription_list' %}">Абонементи</a></li>
+{#                        <li><a href="#contact">Контакти</a></li>#}
+                    </ul>
+                </div>
+{#                <div class="footer-section">#}
+{#                    <h3>Contact</h3>#}
+{#                    <p>Email: info@sportcomplex.com</p>#}
+{#                    <p>Phone: +1 234 567 890</p>#}
+{#                    <p>Address: 123 Fitness St, Kyiv</p>#}
+{#                </div>#}
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Sport Complex. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

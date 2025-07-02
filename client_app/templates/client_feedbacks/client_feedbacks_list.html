@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Список відгуків
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedbacks-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .feedbacks-table th, .feedbacks-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .feedbacks-table th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: bold;
+    }
+    .feedbacks-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .add-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .add-btn:hover {
+        background-color: #2980b9;
+    }
+    .edit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-right: 5px;
+    }
+    .edit-btn:hover {
+        background-color: #2980b9;
+    }
+    .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .delete-btn:hover {
+        background-color: #c0392b;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+    .modal-content p {
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .modal-content .confirm-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+    }
+    .modal-content .confirm-btn:hover {
+        background-color: #2980b9;
+    }
+    .modal-content .cancel-btn {
+        background-color: #95a5a6;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .modal-content .cancel-btn:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Список відгуків</h1>
+    {% if request.user.user_role == 'client' %}
+    <a href="{% url 'add_client_feedback' %}" class="add-btn">Додати відгук</a>
+    {% endif %}
+{#    {% if messages %}#}
+{#        {% for message in messages %}#}
+{#            {% if message.tags == 'success' %}#}
+{#                <p style="background-color: #dff0d8; color: #3c763d; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;">#}
+{#                    {{ message }}#}
+{#                </p>#}
+{#            {% elif message.tags == 'error' %}#}
+{#                <p class="error-message">{{ message }}</p>#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+{#    {% endif %}#}
+    {% if feedbacks %}
+        <table class="feedbacks-table">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th>Дата</th>
+                    <th>Рейтинг</th>
+                    <th>Тренер</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.title }}</td>
+                        <td>{{ feedback.description }}</td>
+                        <td>{{ feedback.date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ feedback.rating }}</td>
+                        <td>{{ feedback.trainer.first_name }} {{ feedback.trainer.last_name }}</td>
+                        <td>
+                            {% if request.user.user_role == 'client' %}
+                            <a href="{% url 'edit_client_feedback' feedback.feedback_id %}" class="edit-btn">Виправити</a>
+                            {% endif %}
+                            {% if request.user.user_role == 'admin' or request.user.user_role == 'client' %}
+                            <button class="delete-btn" onclick="openModal({{ feedback.feedback_id }}, '{{ feedback.title|escapejs }}')">Видалити</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="error-message">Відгуків не знайдено.</p>
+    {% endif %}
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <p>Ви впевнені, що хочете видалити відгук "<span id="feedbackTitle"></span>"?</p>
+        <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="confirm-btn">Так</button>
+            <button type="button" class="cancel-btn" onclick="closeModal()">Ні</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(feedbackId, feedbackTitle) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    const titleSpan = document.getElementById('feedbackTitle');
+    form.action = `/client_feedbacks/delete/${feedbackId}/`;
+    titleSpan.textContent = feedbackTitle;
+    modal.style.display = 'flex';
+}
+function closeModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'none';
+}
+</script>
+{% endblock %}

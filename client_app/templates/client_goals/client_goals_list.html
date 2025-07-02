@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Список цілей
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .goals-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .goals-table th, .goals-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .goals-table th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: bold;
+    }
+    .goals-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .add-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .add-btn:hover {
+        background-color: #2980b9;
+    }
+    .edit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-right: 5px;
+    }
+    .edit-btn:hover {
+        background-color: #2980b9;
+    }
+    .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .delete-btn:hover {
+        background-color: #c0392b;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+    .modal-content p {
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .modal-content .confirm-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+    }
+    .modal-content .confirm-btn:hover {
+        background-color: #2980b9;
+    }
+    .modal-content .cancel-btn {
+        background-color: #95a5a6;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .modal-content .cancel-btn:hover {
+        background-color: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Список цілей</h1>
+    <a href="{% url 'add_client_goal' %}" class="add-btn">Додати ціль</a>
+{#    {% if messages %}#}
+{#        {% for message in messages %}#}
+{#            {% if message.tags == 'success' %}#}
+{#                <p style="background-color: #dff0d8; color: #3c763d; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;">#}
+{#                    {{ message }}#}
+{#                </p>#}
+{#            {% elif message.tags == 'error' %}#}
+{#                <p class="error-message">{{ message }}</p>#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+{#    {% endif %}#}
+    {% if goals %}
+        <table class="goals-table">
+            <thead>
+                <tr>
+                    <th>Ціль</th>
+                    <th>Опис</th>
+                    <th>Дата призначення</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for goal in goals %}
+                    <tr>
+                        <td>{{ goal.goal.goal_name }}</td>
+                        <td>{{ goal.description }}</td>
+                        <td>{{ goal.assigned_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            {% if goal.is_achieved %}
+                                Досягнуто
+                            {% else %}
+                                Не досягнуто
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_client_goal' goal.client_goal_id %}" class="edit-btn">Виправити</a>
+                            <button class="delete-btn" onclick="openModal({{ goal.client_goal_id }}, '{{ goal.goal.goal_name|escapejs }}')">Видалити</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="error-message">Цілей не знайдено.</p>
+    {% endif %}
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <p>Ви впевнені, що хочете видалити ціль "<span id="goalName"></span>"?</p>
+        <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="confirm-btn">Так</button>
+            <button type="button" class="cancel-btn" onclick="closeModal()">Ні</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(goalId, goalName) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    const nameSpan = document.getElementById('goalName');
+    form.action = `/client_goals/delete/${goalId}/`;
+    nameSpan.textContent = goalName;
+    modal.style.display = 'flex';
+}
+function closeModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'none';
+}
+</script>
+{% endblock %}

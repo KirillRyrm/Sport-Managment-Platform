@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} - Login{% endblock %}
+{% block content %}
+    <section class="auth-section">
+        <h1>Авторизація</h1>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Логін</label>
+                <input type="text" name="username" id="username" placeholder="Введіть свій логін" value="{{ request.POST.username|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" name="password" id="password" placeholder="Введіть свій пароль" required>
+            </div>
+            <button type="submit">Увійти</button>
+        </form>
+        <p class="auth-link">Немає аккаунту? <a href="{% url 'register' %}">Зареєструйтесь тут</a></p>
+    </section>
+{% endblock %}

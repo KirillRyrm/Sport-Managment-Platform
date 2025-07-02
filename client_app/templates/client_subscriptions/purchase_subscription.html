@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Купити абонемент
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .purchase-form {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .purchase-form h2 {
+        color: #3498db;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .purchase-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .purchase-form select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .purchase-form .subscription-details {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+    }
+    .purchase-form .subscription-details p {
+        margin: 5px 0;
+        color: #333;
+    }
+    .purchase-form .buy-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 0 auto;
+    }
+    .purchase-form .buy-btn:hover {
+        background-color: #2980b9;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .balance-info {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
+        font-size: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="purchase-form">
+        <h2>Купити абонемент</h2>
+        <p class="balance-info">Ваш баланс: {{ client.balance }} грн.</p>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <p class="error-message">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <label for="{{ form.subscription.id_for_label }}">Виберіть абонемент:</label>
+            {{ form.subscription }}
+            <div class="subscription-details" id="subscription-details">
+                <p><strong>Ціна:</strong> <span id="price">-</span> грн.</p>
+                <p><strong>Тривалість:</strong> <span id="duration">-</span> днів</p>
+                <p><strong>Опис:</strong> <span id="description">-</span></p>
+            </div>
+            <button type="submit" class="buy-btn">Купити</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.querySelector('#id_subscription');
+    const priceSpan = document.querySelector('#price');
+    const durationSpan = document.querySelector('#duration');
+    const descriptionSpan = document.querySelector('#description');
+    const subscriptions = [
+        {% for sub in form.subscription.field.queryset %}
+            {
+                id: {{ sub.subscription_id }},
+                price: {{ sub.price|floatformat:2 }},
+                duration: {{ sub.duration_days }},
+                description: "{{ sub.description|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    function updateDetails() {
+        const selectedId = parseInt(select.value);
+        const selectedSub = subscriptions.find(sub => sub.id === selectedId);
+        if (selectedSub) {
+            priceSpan.textContent = selectedSub.price;
+            durationSpan.textContent = selectedSub.duration;
+            descriptionSpan.textContent = selectedSub.description;
+        } else {
+            priceSpan.textContent = '-';
+            durationSpan.textContent = '-';
+            descriptionSpan.textContent = '-';
+        }
+    }
+    select.addEventListener('change', updateDetails);
+    updateDetails();
+});
+</script>
+{% endblock %}

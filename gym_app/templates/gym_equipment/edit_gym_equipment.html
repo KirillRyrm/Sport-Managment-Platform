@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .form-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+
+    .form-container form {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-container label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .form-container select,
+    .form-container input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-container .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .form-container .btn:hover {
+        background: #1557b0;
+    }
+
+    .form-container .cancel-btn {
+        background: #777;
+    }
+
+    .form-container .cancel-btn:hover {
+        background: #555;
+    }
+
+    .form-container .error {
+        color: #d32f2f;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+        .form-container h1 {
+            font-size: 1.8rem;
+        }
+
+        .form-container form {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Редагувати обладнання "{{ gym_equipment.equipment.equipment_name }}" у "{{ location.location_name }}"</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="equipment">Обладнання</label>
+            <select id="equipment" name="equipment" required>
+                {% for equip in form.equipment.field.queryset %}
+                    <option value="{{ equip.pk }}" {% if equip.pk == form.equipment.value|default:gym_equipment.equipment.pk %}selected{% endif %}>
+                        {{ equip.equipment_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if form.equipment.errors %}
+                <p class="error">{{ form.equipment.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="quantity">Кількість</label>
+            <input type="number" id="quantity" name="quantity" value="{{ form.quantity.value|default:gym_equipment.quantity }}" required>
+            {% if form.quantity.errors %}
+                <p class="error">{{ form.quantity.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn">Зберегти</button>
+            <a href="{% url 'location_list' gym.gym_id %}" class="btn cancel-btn">Скасувати</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

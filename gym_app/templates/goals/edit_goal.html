@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .form-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+
+    .form-container form {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-container label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .form-container input,
+    .form-container textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-container .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .form-container .btn:hover {
+        background: #1557b0;
+    }
+
+    .form-container .cancel-btn {
+        background: #777;
+    }
+
+    .form-container .cancel-btn:hover {
+        background: #555;
+    }
+
+    .form-container .error {
+        color: #d32f2f;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+        .form-container h1 {
+            font-size: 1.8rem;
+        }
+
+        .form-container form {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Редагувати ціль "{{ goal.goal_name }}"</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="goal_name">Назва цілі</label>
+            <input type="text" id="goal_name" name="goal_name" value="{{ form.goal_name.value|default:goal.goal_name }}" required>
+            {% if form.goal_name.errors %}
+                <p class="error">{{ form.goal_name.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="description">Опис</label>
+            <textarea id="description" name="description" rows="4">{{ form.description.value|default:goal.description }}</textarea>
+            {% if form.description.errors %}
+                <p class="error">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn">Зберегти</button>
+            <a href="{% url 'goal_list' %}" class="btn cancel-btn">Скасувати</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

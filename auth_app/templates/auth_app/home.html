@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Головна{% endblock %}
+
+{% block content %}
+    <section class="hero">
+        <h1>Вітаємо, {{ username }}!</h1>
+        <p>Ваша роль: {{ user_role|capfirst }}</p>
+        <p>Ласкаво просимо до мережі спортивних комплексів. Оберіть потрібний розділ нижче.</p>
+    </section>
+
+    <section class="resources">
+        <h2>Доступні ресурси</h2>
+        <div class="resource-list">
+            {% if user_role == 'admin' %}
+                <div class="resource-card">
+                    <h3>Спортивні зали</h3>
+                    <p>Керування спортивними залами та їх розташуванням.</p>
+                    <a href="gym_list/" class="btn">Перейти до залів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Обладнання</h3>
+                    <p>Керування обладнанням та його розподілом по залах.</p>
+                    <a href="equipment/" class="btn">Перейти до обладнання</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Абонементи</h3>
+                    <p>Створення та редагування абонементів.</p>
+                    <a href="/subscriptions/" class="btn">Перейти до абонементів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Цілі</h3>
+                    <p>Керування цілями клієнтів.</p>
+                    <a href="/goals/" class="btn">Перейти до цілей</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Типи тренувань</h3>
+                    <p>Налаштування типів тренувань.</p>
+                    <a href="training_types/" class="btn">Перейти до типів тренувань</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Тренери</h3>
+                    <p>Керування тренерами.</p>
+                    <a href="trainers/" class="btn">Перейти до тренерів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Клієнти</h3>
+                    <p>Керування клієнтами та їхніми даними.</p>
+                    <a href="clients/" class="btn">Перейти до клієнтів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Відгуки клієнтів</h3>
+                    <p>Перегляд і модерація відгуків.</p>
+                    <a href="client_feedbacks/" class="btn">Перейти до відгуків</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Аналітика</h3>
+                    <p>Перегляд аналітичних даних.</p>
+                    <a href="analytics/" class="btn">Перейти до аналітики</a>
+                </div>
+            {% elif user_role == 'trainer' %}
+                <div class="resource-card">
+                    <h3>Мій розклад</h3>
+                    <p>Перегляд і керування вашими тренувальними сесіями.</p>
+                    <a href="training_sessions/" class="btn">Перейти до розкладу</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Спортивні зали</h3>
+                    <p>Перегляд доступних залів.</p>
+                    <a href="gym_list/" class="btn">Перейти до залів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Клієнти</h3>
+                    <p>Перегляд даних ваших клієнтів.</p>
+                    <a href="clients/" class="btn">Перейти до клієнтів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Прогрес моїх клієнтів</h3>
+                    <p>Запис і перегляд прогресу клієнтів.</p>
+                    <a href="my_client_progress/" class="btn">Перейти до прогресу</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Відгуки клієнтів</h3>
+                    <p>Перегляд відгуків від клієнтів.</p>
+                    <a href="{% url 'trainer_feedbacks' %}" class="btn">Перейти до відгуків</a>
+                </div>
+            {% elif user_role == 'client' %}
+                <div class="resource-card">
+                    <h3>Тренувальні сесії</h3>
+                    <p>Реєстрація на тренування.</p>
+                    <a href="client_trainings/" class="btn">Перейти до сесій</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Спортивні зали</h3>
+                    <p>Перегляд доступних залів.</p>
+                    <a href="gym_list/" class="btn">Перейти до залів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Мої абонементи</h3>
+                    <p>Перегляд і покупка абонементів.</p>
+                    <a href="client_subscriptions/" class="btn">Перейти до моїх абонементів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Доступні абонементи</h3>
+                    <p>Перегляд доступних абонементів.</p>
+                    <a href="subscriptions/" class="btn">Перейти до абонементів</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Мої цілі</h3>
+                    <p>Встановлення та відстеження цілей.</p>
+                    <a href="client_goals/" class="btn">Перейти до цілей</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Мій прогрес</h3>
+                    <p>Перегляд вашого прогресу.</p>
+                    <a href="/progress/" class="btn">Перейти до прогресу</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Відгуки</h3>
+                    <p>Залишити відгук тренеру.</p>
+                    <a href="client_feedbacks/" class="btn">Перейти до відгуків</a>
+                </div>
+                <div class="resource-card">
+                    <h3>Тренери</h3>
+                    <p>Перегляд наявних тренерів</p>
+                    <a href="trainers/" class="btn">Перейти до тренерів</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .hero {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .resources {
+            margin-top: 2rem;
+        }
+        .resource-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .resource-card {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .resource-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .resource-card p {
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+{% endblock %}

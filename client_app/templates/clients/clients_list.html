@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Список клієнтів
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .clients-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .clients-table th, .clients-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .clients-table th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: bold;
+    }
+    .clients-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .delete-btn:hover {
+        background-color: #c0392b;
+    }
+    .goals-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .goals-list li {
+        margin-bottom: 5px;
+        color: #333;
+    }
+    .goals-list li.achieved {
+        color: #3c763d;
+        font-style: italic;
+    }
+    .no-goals {
+        color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Список клієнтів</h1>
+    {% if clients_data %}
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Логін</th>
+                    <th>Ім’я</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    {% if user_role == 'trainer' %}
+                    <th>Цілі клієнта</th>
+                    {% endif %}
+                    {% if user_role == 'admin' %}
+                        <th>Тренер</th>
+                    {% endif %}
+                    <th>Дата народження</th>
+                    {% if user_role == 'admin' %}
+                        <th>Дії</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in clients_data %}
+                    <tr>
+                        <td>{{ data.user.username }}</td>
+                        <td>
+                            {% if data.client %}
+                                {{ data.client.first_name }} {{ data.client.last_name }}
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data.client %}
+                                {{ data.client.email }}
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data.client %}
+                                {{ data.client.phone }}
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </td>
+                        {% if user_role == 'trainer' %}
+                        <td>
+                            {% if data.client and data.goals %}
+                                <ul class="goals-list">
+                                    {% for goal in data.goals %}
+                                        <li class="{% if goal.is_achieved %}achieved{% endif %}">
+                                            {{ goal.title }}
+                                            {% if goal.description %} ({{ goal.description }}){% endif %}
+                                            {% if goal.is_achieved %} - Досягнуто{% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% elif data.client %}
+                                <span class="no-goals">Немає цілей</span>
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        {% if user_role == 'admin' %}
+                            <td>
+                                {% if data.client and data.client.trainer %}
+                                    {{ data.client.trainer.first_name }} {{ data.client.trainer.last_name }}
+                                {% else %}
+                                    Не призначено
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        <td>
+                            {% if data.client %}
+                                {{ data.client.birth|date:"Y-m-d" }}
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </td>
+                        {% if user_role == 'admin' %}
+                            <td>
+                                <form method="post" action="{% url 'delete_client' data.user.user_credential_id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити клієнта {% if data.client %}{{ data.client.first_name }} {{ data.client.last_name }}{% else %}{{ data.user.username }}{% endif %}?');">Видалити</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="error-message">Клієнтів не знайдено.</p>
+    {% endif %}
+</div>
+{% endblock %}

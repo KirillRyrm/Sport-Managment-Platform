@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Зареєстровані клієнти
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status-завершено {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .status-заплановано {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .status-скасовано {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .session-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .session-info p {
+            margin: 5px 0;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #2980b9;
+        }
+        .no-clients {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message.success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .message.error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .progress-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .progress-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Зареєстровані клієнти</h1>
+{#    {% if messages %}#}
+{#        <div class="messages">#}
+{#            {% for message in messages %}#}
+{#                <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    {% endif %}#}
+    <a href="{% url 'training_sessions' %}" class="back-btn">Повернутися до розкладу</a>
+    <div class="session-info">
+        <p><strong>Дата:</strong> {{ session.session_date|date:"d.m.Y" }}</p>
+        <p><strong>Час:</strong> {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</p>
+        <p><strong>Тип тренування:</strong> {{ session.training_type.title|default:"Немає" }}</p>
+        <p><strong>Локація:</strong> {{ session.location.location_name }} ({{ session.location.gym.gym_name }})</p>
+        <p><strong>Статус:</strong> <span class="status-{{ session.status }}">{{ session.get_status_display }}</span></p>
+        <p><strong>Максимум учасників:</strong> {{ session.max_participants }}</p>
+    </div>
+    {% if clients %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ім'я</th>
+                    <th>Прізвище</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.first_name }}</td>
+                        <td>{{ client.last_name }}</td>
+                        <td>{{ client.email }}</td>
+                        <td>{{ client.phone }}</td>
+                        <td>
+{#                            {% if not client_data.has_progress %}#}
+                            <a href="{% url 'add_client_progress' session_id=session.session_id client_id=client.user_id %}" class="progress-btn">Залишити відгук про прогрес</a>
+{#                            {% endif %}#}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-clients">Немає зареєстрованих клієнтів на цю сесію.</p>
+    {% endif %}
+{% endblock %}

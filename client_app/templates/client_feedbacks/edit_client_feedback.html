@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Редагувати відгук
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-feedback-form {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .edit-feedback-form h2 {
+        color: #3498db;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .edit-feedback-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .edit-feedback-form input[type="text"],
+    .edit-feedback-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .edit-feedback-form input[type="text"][readonly] {
+        background-color: #f9f9f9;
+        cursor: not-allowed;
+    }
+    .edit-feedback-form textarea {
+        height: 100px;
+        resize: vertical;
+    }
+    .edit-feedback-form .rating-label {
+        margin-bottom: 10px;
+    }
+    .edit-feedback-form .rating-options {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    .edit-feedback-form .rating-options input {
+        display: none;
+    }
+    .edit-feedback-form .rating-options label {
+        background-color: #f9f9f9;
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .edit-feedback-form .rating-options input:checked + label {
+        background-color: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    .edit-feedback-form .submit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 0 auto;
+    }
+    .edit-feedback-form .submit-btn:hover {
+        background-color: #2980b9;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="edit-feedback-form">
+        <h2>Редагувати відгук</h2>
+{#        {% if messages %}#}
+{#            {% for message in messages %}#}
+{#                {% if message.tags == 'error' %}#}
+{#                    <p class="error-message">{{ message }}</p>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+        <form method="post">
+            {% csrf_token %}
+            <label>Тренер:</label>
+            <input type="text" value="{{ feedback.trainer.first_name }} {{ feedback.trainer.last_name }}" readonly>
+            <label for="{{ form.title.id_for_label }}">Назва:</label>
+            {{ form.title }}
+            <label for="{{ form.description.id_for_label }}">Опис:</label>
+            {{ form.description }}
+            <label class="rating-label">Рейтинг:</label>
+            <div class="rating-options">
+                {% for value, label in form.rating.field.choices %}
+                    <input type="radio" name="rating" id="rating-{{ value }}" value="{{ value }}" {% if form.rating.value == value %}checked{% endif %}>
+                    <label for="rating-{{ value }}">{{ value }}</label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="submit-btn">Зберегти</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

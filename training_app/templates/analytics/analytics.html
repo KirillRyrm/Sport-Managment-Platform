@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Аналітика
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .analytics-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .analytics-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .analytics-btn:hover {
+            background-color: #2980b9;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message.error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="analytics-container">
+        <h1>Аналітика</h1>
+{#        {% if messages %}#}
+{#            <div class="messages">#}
+{#                {% for message in messages %}#}
+{#                    <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#        {% endif %}#}
+        <a href="{% url 'client_attendance' %}" class="analytics-btn">Відвідуваність клієнтів</a>
+        <a href="{% url 'training_type_ranking' %}" class="analytics-btn">Рейтинг типів тренувань</a>
+        <a href="{% url 'location_ranking' %}" class="analytics-btn">Рейтинг локацій</a>
+    </div>
+{% endblock %}

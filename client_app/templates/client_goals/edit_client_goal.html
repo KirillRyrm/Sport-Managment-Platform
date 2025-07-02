@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Редагувати ціль
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-goal-form {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .edit-goal-form h2 {
+        color: #3498db;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .edit-goal-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .edit-goal-form input[type="text"],
+    .edit-goal-form textarea,
+    .edit-goal-form input[type="checkbox"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .edit-goal-form input[type="text"] {
+        background-color: #f9f9f9;
+        cursor: not-allowed;
+    }
+    .edit-goal-form textarea {
+        height: 100px;
+        resize: vertical;
+    }
+    .edit-goal-form .checkbox-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .edit-goal-form .checkbox-label input {
+        width: auto;
+        margin-right: 10px;
+    }
+    .edit-goal-form .submit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 0 auto;
+    }
+    .edit-goal-form .submit-btn:hover {
+        background-color: #2980b9;
+    }
+    .error-message {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="edit-goal-form">
+        <h2>Редагувати ціль</h2>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <p class="error-message">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.goal }}
+            <label>Ціль:</label>
+            <input type="text" value="{{ goal.goal.goal_name }}" readonly>
+            <label for="{{ form.description.id_for_label }}">Опис:</label>
+            {{ form.description }}
+            <label class="checkbox-label" for="{{ form.is_achieved.id_for_label }}">
+                {{ form.is_achieved }} Досягнуто
+            </label>
+            <button type="submit" class="submit-btn">Зберегти</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

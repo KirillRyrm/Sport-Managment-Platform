@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+    .location-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .location-container h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .location-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .location-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .location-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .location-card h2 {
+        font-size: 1.8rem;
+        color: #1a73e8;
+        margin: 0 0 0.5rem;
+    }
+
+    .location-card p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .location-card .equipment-list {
+        margin: 1rem 0;
+    }
+
+    .location-card .equipment-item {
+        margin: 0.5rem 0;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .location-card .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .location-card .equipment-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .location-card .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .location-card .btn-edit {
+        background: #1a73e8;
+    }
+
+    .location-card .btn-edit:hover {
+        background: #1557b0;
+    }
+
+    .location-card .btn-delete {
+        background: #d32f2f;
+    }
+
+    .location-card .btn-delete:hover {
+        background: #b71c1c;
+    }
+
+    .location-card .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .add-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #1a73e8;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .add-btn:hover {
+        background: #1557b0;
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #777;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .back-btn:hover {
+        background: #555;
+    }
+
+    .no-locations {
+        text-align: center;
+        color: #777;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+    }
+
+    .no-equipment {
+        color: #777;
+        font-size: 0.95rem;
+        margin: 0.5rem 0;
+    }
+
+    @media (max-width: 600px) {
+        .location-container h1 {
+            font-size: 2rem;
+        }
+
+        .location-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .location-card {
+            padding: 1rem;
+        }
+
+        .location-card .actions,
+        .location-card .equipment-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .location-card .btn,
+        .location-card .btn-delete {
+            width: 100%;
+        }
+
+        .location-card .delete-form {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete(name) {
+        return confirm(`Ви впевнені, що хочете видалити "${name}"?`);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="location-container">
+    <h1>Локації залу "{{ gym.gym_name }}"</h1>
+    <a href="{% url 'gym_list' %}" class="back-btn">Назад до залів</a>
+    {% if user.user_role == 'admin' %}
+        <a href="{% url 'add_location' gym.gym_id %}" class="add-btn">Додати локацію</a>
+    {% endif %}
+    {% if locations %}
+        <div class="location-grid">
+            {% for location in locations %}
+                <div class="location-card">
+                    <h2>{{ location.location_name }}</h2>
+                    <p><strong>Місткість:</strong> {{ location.capacity }} осіб</p>
+                    <p><strong>Зал:</strong> {{ location.gym.gym_name }}</p>
+                    <div class="equipment-list">
+                        <strong>Обладнання:</strong>
+                        {% if location.equipment.all %}
+                            {% for gym_equipment in location.equipment.all %}
+                                <div class="equipment-item">
+                                    {{ gym_equipment.equipment.equipment_name }}: {{ gym_equipment.quantity }} шт.
+                                    {% if user.user_role == 'admin' %}
+                                        <div class="equipment-actions">
+                                            <a href="{% url 'edit_gym_equipment' gym.gym_id location.location_id gym_equipment.gym_equipment_id %}" class="btn btn-edit">Змінити обладнання</a>
+                                            <form method="post" action="{% url 'delete_gym_equipment' gym.gym_id location.location_id gym_equipment.gym_equipment_id %}" class="delete-form" onsubmit="return confirmDelete('{{ gym_equipment.equipment.equipment_name|escapejs }} у {{ location.location_name|escapejs }}')">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-delete">Видалити обладнання</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-equipment">Обладнання відсутнє.</p>
+                        {% endif %}
+                    </div>
+                    {% if user.user_role == 'admin' %}
+                        <div class="actions">
+                            <a href="{% url 'add_gym_equipment' gym.gym_id location.location_id %}" class="btn btn-edit">Додати обладнання</a>
+                            <a href="{% url 'edit_location' gym.gym_id location.location_id %}" class="btn btn-edit">Змінити локацію</a>
+                            <form method="post" action="{% url 'delete_location' gym.gym_id location.location_id %}" class="delete-form" onsubmit="return confirmDelete('{{ location.location_name|escapejs }}')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-delete">Видалити локацію</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-locations">Локації відсутні.</p>
+    {% endif %}
+</div>
+{% endblock %}

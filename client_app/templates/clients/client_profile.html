@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Профіль клієнта
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-info {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+    .profile-info p {
+        font-size: 16px;
+        margin-bottom: 12px;
+        color: #34495e;
+    }
+    .profile-info strong {
+        color: #3498db;
+        font-weight: bold;
+    }
+    .edit-form, .balance-form {
+        max-width: 500px;
+        margin: 20px auto;
+    }
+    .edit-form .form-group, .balance-form .form-group {
+        margin-bottom: 15px;
+    }
+    .edit-form label, .balance-form label {
+        color: #34495e;
+        font-weight: bold;
+    }
+    .edit-form button, .balance-form button {
+        width: 100%;
+    }
+    .top-up-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: inline-block;
+        margin-left: 10px;
+        text-decoration: none;
+    }
+    .top-up-btn:hover {
+        background-color: #2980b9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Профіль клієнта</h1>
+    {% if client %}
+        <div class="profile-info">
+            <p><strong>Ім’я:</strong> {{ client.first_name }} {{ client.last_name }}</p>
+            <p><strong>Email:</strong> {{ client.email }}</p>
+            <p><strong>Телефон:</strong> {{ client.phone }}</p>
+            <p><strong>Дата народження:</strong> {{ client.birth|date:"d.m.Y" }}</p>
+            <p><strong>Стать:</strong> {{ client.get_gender_display }}</p>
+            <p>
+                <strong>Баланс:</strong> {{ client.balance }} грн
+                <a href="#balance-form" class="top-up-btn">Поповнити баланс</a>
+            </p>
+            <p><strong>Дата створення:</strong> {{ client.created_at|date:"d.m.Y H:i" }}</p>
+            <p><strong>Останнє оновлення:</strong> {{ client.updated_at|date:"d.m.Y H:i" }}</p>
+            <p><strong>Тренер:</strong> {% if trainer %}{{ trainer.first_name }} {{ trainer.last_name }}{% else %}Не призначено{% endif %}</p>
+        </div>
+
+        <div class="edit-form">
+            <h2>Редагувати профіль</h2>
+            <form method="post" name="update_profile">
+                {% csrf_token %}
+                <input type="hidden" name="update_profile">
+                <div class="form-group">
+                    {{ client_form.first_name.label_tag }}
+                    {{ client_form.first_name }}
+                    {{ client_form.first_name.errors }}
+                </div>
+                <div class="form-group">
+                    {{ client_form.last_name.label_tag }}
+                    {{ client_form.last_name }}
+                    {{ client_form.last_name.errors }}
+                </div>
+                <div class="form-group">
+                    {{ client_form.email.label_tag }}
+                    {{ client_form.email }}
+                    {{ client_form.email.errors }}
+                </div>
+                <div class="form-group">
+                    {{ client_form.phone.label_tag }}
+                    {{ client_form.phone }}
+                    {{ client_form.phone.errors }}
+                </div>
+                <div class="form-group">
+                    {{ client_form.birth.label_tag }}
+                    {{ client_form.birth }}
+                    {{ client_form.birth.errors }}
+                </div>
+                <div class="form-group">
+                    {{ client_form.gender.label_tag }}
+                    {{ client_form.gender }}
+                    {{ client_form.gender.errors }}
+                </div>
+                <button type="submit">Зберегти зміни</button>
+            </form>
+        </div>
+
+        <div class="balance-form" id="balance-form">
+            <h2>Поповнити баланс</h2>
+            <form method="post" name="top_up_balance">
+                {% csrf_token %}
+                <input type="hidden" name="top_up_balance">
+                <div class="form-group">
+                    {{ balance_form.amount.label_tag }}
+                    {{ balance_form.amount }}
+                    {{ balance_form.amount.errors }}
+                </div>
+                <button type="submit">Поповнити</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="error-message">Профіль клієнта не знайдено.</p>
+    {% endif %}
+</div>
+{% endblock %}
