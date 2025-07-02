@@ -77,28 +77,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sportmanagment.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'sport_complexes',
-#         'USER': 'postgres',
-#         'PASSWORD': 'rirmakkirill890',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'sport_complexes'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'rirmakkirill890'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
 	'OPTIONS': {
             'sslmode': 'require',
         },
@@ -106,8 +92,8 @@ DATABASES = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'auth_app.backends.UserCredentialsBackend',  # Шлях до твого бекенду
-    'django.contrib.auth.backends.ModelBackend',  # Стандартний бекенд Django (опціонально)
+    'auth_app.backends.UserCredentialsBackend',  
+    'django.contrib.auth.backends.ModelBackend',  
 ]
 
 REST_FRAMEWORK = {
@@ -162,9 +148,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_URL = 'login/'  # Куди перенаправляти неавтентифікованих користувачів
-LOGIN_REDIRECT_URL = '/'  # Куди перенаправляти після успішного логіну (домашня сторінка)
-LOGOUT_REDIRECT_URL = 'login/'  # Куди перенаправляти після логауту
+LOGIN_URL = 'login/'  
+LOGIN_REDIRECT_URL = '/' 
+LOGOUT_REDIRECT_URL = 'login/' 
 
 CSRF_TRUSTED_ORIGINS = [
     'https://fitness.ukrnic.com',
